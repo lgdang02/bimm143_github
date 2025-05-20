@@ -1,0 +1,297 @@
+---
+title: "Class 8: Breast cancer mini project"
+author: "Linh Dang (PID: A16897764)"
+format: pdf
+toc: true
+---
+
+## Background
+
+This mini-project explores unsupervised learning techniques applied to a dataset of human breast cancer cell measurements. The goal is to use Principal Component Analysis (PCA) as a pre-processing step before applying clustering algorithms to identify patterns in the data without prior knowledge of diagnosis. The data, originating from the Wisconsin Breast Cancer Diagnostic Data Set, contains measurements of cell nuclei features from fine needle aspiration (FNA) biopsies. The analysis involves exploratory data analysis, performing and interpreting PCA, and then applying and evaluating both hierarchical clustering and k-means clustering methods, including a comparison of clustering results with known diagnoses and a discussion of sensitivity and specificity. Finally, the project demonstrates how to predict the principal components for new data points.
+
+## Data import
+
+Our data come from the U. of Wisconsin Medical Center
+
+```{r}
+wisc.df <- read.csv("WisconsinCancer.csv", row.names = 1)
+```
+
+> Q1. How many patients/samples are in this dataset?
+
+```{r}
+nrow(wisc.df)
+```
+
+> Q2. How many of the observations have a malignant diagnosis?
+
+```{r}
+table(wisc.df$diagnosis)
+```
+
+```{r}
+sum(wisc.df$diagnosis == "M")
+```
+
+> Q3. How many variables/features in the data are suffixed with _mean?
+
+```{r}
+colnames(wisc.df)
+```
+
+```{r}
+length( grep("mean", colnames(wisc.df), value=T) )
+```
+
+There is a diagnosis column that is the clinician consensus that I want to exclude from any further analysis. We will come back later and compare our results to this diagnosis.
+
+```{r}
+diagnosis <- as.factor(wisc.df$diagnosis)
+head(diagnosis)
+```
+
+Now we can remove it from the `wisc.df`
+
+```{r}
+wisc.data <- wisc.df[,-1]
+```
+
+## Clustering
+
+Let's try a `hclust()`
+
+```{r}
+hc <- hclust( dist(wisc.data) )
+plot(hc)
+```
+
+We can extract clusters from this rather poor dendogram/tree with the `cutree()`
+
+```{r}
+grps <- cutree(hc, k=2)
+```
+
+How many individuals in each cluster?
+
+```{r}
+table(grps)
+```
+
+```{r}
+table(diagnosis)
+```
+
+We can generate a cross-table that compares our cluster `grps` vectors with our `diagnosis` vector values
+
+```{r}
+table(diagnosis, grps)
+```
+
+## Principal Component Analysis
+
+### The importance data scaling
+
+The main function for PCA in base R is `prcomp()` it has a default input parameter of `scale=FALSE`.
+
+```{r}
+#prcomp()
+head(mtcars)
+```
+
+We could do a PCA of this data as is and it could be mis-leading...
+
+```{r}
+pc <- prcomp(mtcars)
+biplot(pc)
+```
+
+Let's look at the mean values of each column and their standard deviation.
+
+```{r}
+colMeans(mtcars)
+```
+
+```{r}
+apply(mtcars, 2, sd)
+```
+
+We can "scale" this data before PCA to get a much bettter representation and analysis of all the columns.
+
+```{r}
+mtscale <- scale(mtcars)
+```
+
+```{r}
+round(colMeans(mtscale))
+```
+
+```{r}
+apply(mtscale, 2, sd)
+```
+
+```{r}
+pc.scale <- prcomp(mtscale)
+```
+
+We can look at the two main results figures from PCA - the "PC plot" (a.k.a. score plot, ordination plot, or PC1 vs PC2 plot). The "loadings plot" how the original variables contribute to the new PCs.
+
+A loadings plot of the unscaled PCA results
+
+```{r}
+library(ggplot2)
+
+ggplot(pc$rotation) +
+  aes(PC1, rownames(pc$rotation) ) +
+  geom_col()
+```
+
+Loadings plot of the scaled data.
+
+```{r}
+ggplot(pc.scale$rotation) +
+  aes(PC1, rownames(pc$rotation) ) +
+  geom_col()
+```
+
+PC plot of scaled PCA results
+
+```{r}
+library(ggrepel)
+
+ggplot(pc.scale$x) +
+  aes(PC1, PC2, label=rownames(pc.scale$x)) +
+  geom_point() +
+  geom_text()
+```
+
+> **Key point**: In general, we will set `scale=TRUE` when we do PCA. This is not the default but probably should be...
+
+We can check the SD and mean of the different columns in `wisc.data` to see if we need to scale - hint we do!
+
+
+### PCA of wisc.data 
+
+```{r}
+wisc.pr <- prcomp(wisc.data, scale=TRUE)
+```
+
+To see how well PCA is doing here in terms of capturing the variance (or spread) in the data we can use the `summary()` function.
+
+```{r}
+summary(wisc.pr)
+```
+
+Let's make the main PC1 vs PC2
+
+```{r}
+ggplot(wisc.pr$x) +
+  aes(PC1, PC2, col=diagnosis) +
+  geom_point() +
+  xlab("PC1 (44.3%)") +
+  ylab("PC2 (19%)")
+```
+
+> Q4. From your results, what proportion of the original variance is captured by the first principal components (PC1)? 
+
+44.3% is captured by the first principal components (PC1).
+
+> Q5. How many principal components (PCs) are required to describe at least 70% of the original variance in the data? 
+
+3 PCs are required to describe at least 70% of the original variance in the data.
+
+> Q6. How many principal components (PCs) are required to describe at least 90% of the original variance in the data?
+
+7 PCs are required to describe at least 90% of the original variance in the data.
+
+> Q7. What stands out to you about this plot? Is it easy or difficult to understand? Why?
+
+```{r}
+biplot(wisc.pr)
+```
+This plot is very difficult to understand because there are too many points on the same graph.
+
+```{r}
+plot(wisc.pr$x, col =diagnosis, 
+     xlab = "PC1", ylab = "PC2")
+```
+
+> Q8. Repeat the same for principal components 1 and 3. What do you notice about these plots?
+
+```{r}
+plot(wisc.pr$x[, c(1, 3)], col = (diagnosis), 
+     xlab = "PC1", ylab = "PC3")
+```
+
+These plots show very similar separation of the two groups, red cluster group (malignant) to the left or negative direction while black cluster group (benign) to the right or positive direction.
+
+> Q9. For the first principal component, what is the component of the loading vector (i.e. wisc.pr$rotation[,1]) for the feature concave.points_mean?
+
+-0.26085376, 5
+
+```{r}
+wisc.pr$rotation[,1]
+```
+
+> Q10. What is the minimum number of principal components required to explain 80% of the variance of the data?
+
+5 principal components are required to explain 80% of the variance.
+
+## 5. Combining methods
+
+We can take our PCA results and use them as a basis set for other analysis such as clustering.
+
+### Clustering on PCA results
+
+```{r}
+wisc.pr.hclust <- hclust( dist(wisc.pr$x[,1:2]), method="ward.D2" )
+plot(wisc.pr.hclust)
+```
+
+> Q11. Using the plot() and abline() functions, what is the height at which the clustering model has 4 clusters?
+
+At height 20, clustering model has 4 clusters.
+
+
+We can "cut" this tree to yield our clusters (groups):
+
+```{r}
+pc.grps <- cutree(wisc.pr.hclust, k=2)
+table(pc.grps)
+```
+
+How do my cluster grps compare to the expert diagnosis 
+
+```{r}
+table(diagnosis, pc.grps)
+```
+
+> Q15. How well does the newly created model with four clusters separate out the two diagnoses?
+
+The newly created model with four clusters separate out the two diagnoses are not good.
+
+> Q16. How well do the k-means and hierarchical clustering models you created in previous sections (i.e. before PCA) do in terms of separating the diagnoses? Again, use the table() function to compare the output of each model (wisc.km$cluster and wisc.hclust.clusters) with the vector containing the actual diagnoses.
+
+They did really badly. We do much better after PCA - the new PCA variables (what we call a basis set) give us much better separation of M and B.
+
+
+## 7. Prediction
+
+We can use our PCA model for the analysis of new "unseen" sata. In this case from U.Mich.
+
+```{r}
+url <- "https://tinyurl.com/new-samples-CSV"
+new <- read.csv(url)
+npc <- predict(wisc.pr, newdata=new)
+npc
+```
+
+```{r}
+plot(wisc.pr$x[,1:2], col=diagnosis)
+points(npc[,1], npc[,2], col="blue", pch=16, cex=3)
+text(npc[,1], npc[,2], c(1,2), col="white")
+```
+
+> Q18. Which of these new patients should we prioritize for follow up based on your results?
+
+PCA shows a nice separation in either positive and negative scores for the 2 groups. Red cluster is malignant while black cluster is benign. New patients (red spots) that deviate away most from the clusters should we prioritize for follow up because they are in malignant group and have the most variation from the rest of other patients. 
+
