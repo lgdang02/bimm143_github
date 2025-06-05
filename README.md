@@ -9,7 +9,7 @@ My classwork from [BIMM143 S25](https://lgdang02.github.io/bimm143_github/) at U
 
 - 07 [Machine Learning 1](https://github.com/lgdang02/bimm143_github/blob/main/class07/class07.md)
 
-- 08 [Brest Cancer Mini Project](https://github.com/lgdang02/bimm143_github/blob/main/class08/class08.md)
+- 08 [Breast Cancer Mini Project](https://github.com/lgdang02/bimm143_github/blob/main/class08/class08.md)
 
 - 09 [Halloween Mini Project](https://github.com/lgdang02/bimm143_github/blob/main/class09/class09.md)
 
