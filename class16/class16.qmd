@@ -1,0 +1,51 @@
+---
+title: "HW16: Unix Basics"
+author: "Linh Dang (PID: A16897764)"
+format: pdf
+---
+
+## Using RStudio locally to read my output
+
+Import and read data that was downloaded from remote computer from previous lab.
+
+```{r}
+# Read tsv file
+b <- read.table(file="results.tsv")
+# Set the colnames
+colnames(b) <- c("qseqid", "sseqid", "pident", "length", "mismatch", "gapopen", "qstart", "qend", "sstart", "send", "evalue", "bitscore")
+head(b)
+```
+
+## Plot a histogram of bitscore value
+
+```{r}
+hist(b$bitscore, breaks = 30)
+```
+
+```{r}
+# Blast results are stored in an object called 'b'
+plot(b$pident  * (b$qend - b$qstart), b$bitscore)
+```
+
+## Result visualization
+
+Use **ggplot2** package to plot the values of percent identity and bitscore value.
+
+```{r}
+library(ggplot2)
+
+ggplot(b) +
+  aes(pident, bitscore) + 
+  geom_point(alpha=0.1) +
+  labs(x = "Percent identity", y = "Bitscore")
+```
+
+```{r}
+ggplot(b) +
+  aes(pident * (qend - qstart), bitscore) + 
+  geom_point(alpha=0.1) + 
+  geom_smooth() +
+  labs(x = "Percent identity", y = "Bitscore")
+```
+
+
