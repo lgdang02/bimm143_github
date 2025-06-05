@@ -1,5 +1,5 @@
 # BIMM143
-My classwork from BIMM143 S25 at UC San Diego.
+My classwork from [BIMM143](https://lgdang02.github.io/bimm143_github/) S25 at UC San Diego.
 
 - 04 Intro to R
 
