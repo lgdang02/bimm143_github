@@ -1,0 +1,7 @@
+Cmd to log in:
+
+ssh -i ~/Downloads/bimm143_lgdang.pem ubuntu@ec2-34-219-250-147.us-west-2.compute.amazonaws.com
+
+scp -r -i ~/Downloads/bimm143_lgdang.pem ubuntu@ec2-34-219-113-54.us-west-2.compute.amazonaws.com:~/class17/*_quant .
+
+scp -r -i ~/Downloads/bimm143_lgdang.pem ubuntu@ec2-34-219-250-147.us-west-2.compute.amazonaws.com:/home/ubuntu/class17/*_quant .
