@@ -16,8 +16,7 @@ My classwork from [BIMM143 S25](https://lgdang02.github.io/bimm143_github/) at U
 - 10 [Structural Bioinformatics pt1](https://github.com/lgdang02/bimm143_github/blob/main/class10/class10.md)
 
 - 11 [Comparative Analysis](https://github.com/lgdang02/bimm143_github/blob/main/class10/class11.md)
-  
-       [AlphaFold](https://github.com/lgdang02/bimm143_github/blob/main/class10/class11_alphafold.md)
+  [AlphaFold](https://github.com/lgdang02/bimm143_github/blob/main/class10/class11_alphafold.md)
 
 - 12 Genome Informatics and High Throughput Sequencing (online)
 
